@@ -24,7 +24,7 @@ class ConfigCache(object):
             self.logger = logger
         else:
             self.logger = logging
-            
+                
     def loadConfig(self, configPath, arguments = [], scramDir = ""):
         """
         _loadConfig_
@@ -64,29 +64,34 @@ class ConfigCache(object):
         configCache = WMConfigCache(url, database)
         configCache.createUserGroup(group, userDN)
         tweaks = makeTweak(configModule.process).jsondictionary()
-        filename = self.writeFile(configModule)
-        configCache.addConfig(filename)
-        configCache.setPSetTweaks(tweaks)
-        configCache.setLabel(label)
-        configCache.setDescription(description)
-        configCache.save()
+        fileName = tempfile.mkstemp()
+        try:
+            filename = self.writeFile(configModule, fileName)
+            configCache.addConfig(filename)
+            configCache.setPSetTweaks(tweaks)
+            configCache.setLabel(label)
+            configCache.setDescription(description)
+            configCache.save()
+        finally:
+            if os.path.exists(fileName):
+                os.unlink(fileName)
         targetUrl = "%s/%s/%s/configFile" % (url, database, configCache.document["_id"])
         return targetUrl
 
-    def writeFile(self, filename=''):
+    def writeFile(self, sourceModule, filename=''):
         """
         write to tempfile FIXME
         Persist fully expanded _cfg.py file
         """
-
+        
         self.outputFile = filename
         self.logger.debug("Writing CMSSW config to %s" % self.outputFile)
         outFile = open(filename, "wb")
         outFile.write("import FWCore.ParameterSet.Config as cms\n")
-        outFile.write(self.fullConfig.process.dumpPython())
+        outFile.write(sourceModule.dumpPython())
         outFile.close()
 
-        return
+        return filename
 
 
     def outputFiles(self):
