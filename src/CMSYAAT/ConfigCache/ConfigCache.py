@@ -64,7 +64,7 @@ class ConfigCache(object):
         configCache = WMConfigCache(url, database)
         configCache.createUserGroup(group, userDN)
         tweaks = makeTweak(configModule.process).jsondictionary()
-        fileName = tempfile.mkstemp()
+        (_,fileName) = tempfile.mkstemp()
         try:
             filename = self.writeFile(configModule, fileName)
             configCache.addConfig(filename)
@@ -88,7 +88,7 @@ class ConfigCache(object):
         self.logger.debug("Writing CMSSW config to %s" % self.outputFile)
         outFile = open(filename, "wb")
         outFile.write("import FWCore.ParameterSet.Config as cms\n")
-        outFile.write(sourceModule.dumpPython())
+        outFile.write(sourceModule.process.dumpPython())
         outFile.close()
 
         return filename
