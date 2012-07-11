@@ -12,7 +12,7 @@ import sys
 import logging
 import tempfile
 
-from WMCore.Cache.WMConfigCache import ConfigCache
+from WMCore.Cache.WMConfigCache import ConfigCache as WMConfigCache
 from PSetTweaks.WMTweak import makeTweak
 
 class ConfigCache(object):
@@ -61,7 +61,7 @@ class ConfigCache(object):
         
         if url.endswith('/'):
             raise RuntimeError, "URL shouldn't have a trailing slash"
-        configCache = ConfigCache(url, database)
+        configCache = WMConfigCache(url, database)
         configCache.createUserGroup(group, userDN)
         tweaks = makeTweak(configModule.process).jsondictionary()
         filename = self.writeFile(configModule)
