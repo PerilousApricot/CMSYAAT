@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.6
 
-from CMSYAAT.ConfigCache.ConfigCache import ConfigCache
+from CMSYAAT.FileCache.ConfigCache import ConfigCache
 
 cacheFile = ConfigCache()
 config = cacheFile.loadConfig('LHEToAODSIM_cfg.py')
