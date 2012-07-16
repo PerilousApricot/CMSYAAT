@@ -30,3 +30,4 @@ target = cacheFile.upload(config, options.user, options.group,
                     arguments=args,
                     )
 print target
+sys.exit( 0 )
