@@ -1,3 +1,0 @@
-[submodule "externals/WMCore"]
-	path = externals/WMCore
-	url = git://github.com/dmwm/WMCore.git
