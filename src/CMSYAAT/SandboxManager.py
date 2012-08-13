@@ -2,6 +2,7 @@
 Created by Andrew Melo <andrew.melo@gmail.com> on Aug 9, 2012
 
 '''
+from CMSYAAT.Sandbox import Sandbox
 
 class SandboxManager(object):
     '''
@@ -19,7 +20,7 @@ class SandboxManager(object):
         """
         Makes a new, fresh sandbox object, ready to be populated
         """
-        raise NotImplementedError
+        return Sandbox()
     
     def submitSandboxToUFC(self, sandbox):
         """

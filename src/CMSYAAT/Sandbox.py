@@ -3,6 +3,8 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 10, 2012
 
 '''
 
+from CMSYAAT.FileCache.SandboxCache import SandboxCache
+
 class Sandbox(object):
     '''
     Represents one sandbox, which is additional libraries or data needed to
@@ -29,7 +31,11 @@ class Sandbox(object):
         
         returns the path of the tarball
         """
-        raise NotImplementedError
+        helper = SandboxCache()
+        self.directory = helper.getCMSSWRootFromPath(directory)
+        self.tarballPath = helper.generateSandboxFromWorkingDirectory(\
+                                        self.directory, target)
+        return self.tarballPath
         
     def getSandbox(self, target = None):
         """
