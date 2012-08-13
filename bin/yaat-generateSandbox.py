@@ -13,5 +13,5 @@ parser.add_option("-f", "--filename", dest="fileName",
 (options, args) = parser.parse_args()
 
 factory = SandboxManager()
-cache = SandboxManager.newSandbox()
-print cache.makeSandbox( options.workdir, fileName= options.fileName )
+cache   = factory.newSandbox()
+print cache.makeSandbox( options.workdir, target= options.fileName )
