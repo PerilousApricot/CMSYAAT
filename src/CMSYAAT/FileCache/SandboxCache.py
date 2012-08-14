@@ -10,6 +10,7 @@ import logging
 import tarfile
 
 from WMCore.Services.UserFileCache.UserFileCache import UserFileCache
+import CMSYAAT.Utilities.SCRAMHelper
 
 class SandboxCache(object):
     '''
@@ -23,19 +24,9 @@ class SandboxCache(object):
         else:
             self.logger = logging
     
-    def getCMSSWRootFromPath(self, workdir):
-        original = workdir
-        x = 0
-        while x < 100: # sanity check
-            if os.path.exists(os.path.join(workdir, ".SCRAM")):
-                return os.path.abspath(workdir)
-            else:
-                x = x + 1
-                workdir = os.path.normpath( workdir + "/.." )
-        raise RuntimeError, "The path %s doesn't appear to be a CMSSW installation" % original
-    
+
     def generateSandboxFromWorkingDirectory(self, workdir, fileName = None, extraFiles = []):
-        rootDir = self.getCMSSWRootFromPath(workdir)
+        rootDir = CMSYAAT.Utilities.SCRAMHelper.GetCMSSWRootFromPath(workdir)
         if not fileName:
             (fileHandle, fileName) = tempfile.mkstemp()
         else:

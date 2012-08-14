@@ -4,6 +4,7 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 10, 2012
 '''
 
 from CMSYAAT.FileCache.SandboxCache import SandboxCache
+from CMSYAAT.Utilities.SCRAMHelper import GetCMSSWRootFromPath
 
 class Sandbox(object):
     '''
@@ -32,7 +33,7 @@ class Sandbox(object):
         returns the path of the tarball
         """
         helper = SandboxCache()
-        self.directory = helper.getCMSSWRootFromPath(directory)
+        self.directory = GetCMSSWRootFromPath(directory)
         self.tarballPath = helper.generateSandboxFromWorkingDirectory(\
                                         self.directory, target)
         return self.tarballPath
