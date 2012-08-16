@@ -45,8 +45,7 @@ class SCRAMWorkDirectory:
         self.oldPath        = sys.path[:]
         self.oldModules     = sys.modules.copy()
         
-        sys.path    = []
-        sys.modules = []
+        sys.modules = {}
 
         for envScript in cmssetPaths:
             if os.path.exists( envScript ):
@@ -64,14 +63,17 @@ class SCRAMWorkDirectory:
                     if len(line.split('=')) == 2:
                         k, v = line.split('=')
                         os.environ[k] = v
+                        
+                for path in os.environ['PYTHONPATH'].split(os.pathsep):
+                    # index zero is the name of the script
+                    sys.path.insert(1, path)
+                    
                 # make sure we got the cms environment
                 for path in os.environ['PATH'].split(os.pathsep):
                     if os.path.exists(os.path.join(path, 'cmsRun')):
                         return
                 
-                for path in os.environ['PYTHONPATH'].split(os.pathsep):
-                    # index zero is the name of the script
-                    sys.path.insert(1, path)
+
                 # if we get here, we didn't get a valid CMS environment
                 raise RuntimeError, "Couldn't find cmsRun using %s" % envScript
                

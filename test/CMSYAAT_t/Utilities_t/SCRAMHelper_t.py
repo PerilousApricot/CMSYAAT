@@ -2,6 +2,7 @@
 Created by Andrew Melo <andrew.melo@gmail.com> on Aug 14, 2012
 
 '''
+import sys
 import unittest
 import os.path
 import shutil
@@ -54,7 +55,7 @@ class testSCRAMHelper_t(unittest.TestCase):
 
     def testEnvironmentHelper(self):
         with SCRAMWorkDirectory( self.scramDir ) as scramDir:
-            pass
+            import FWCore.ParameterSet.Config as cms
         
 if __name__ == '__main__':
     import nose
