@@ -12,7 +12,7 @@ import sys
 import logging
 import tempfile
 
-from WMCore.Cache.WMConfigCache import ConfigCache
+from WMCore.Cache.WMConfigCache import ConfigCache as CMSConfigCache
 from PSetTweaks.WMTweak import makeTweak
 
 from CMSYAAT.Utilities.Proxy import requireProxy
@@ -65,10 +65,10 @@ class ConfigCache(object):
         
         if url.endswith('/'):
             raise RuntimeError, "URL shouldn't have a trailing slash"
-        configCache = ConfigCache(url, database)
+        configCache = CMSConfigCache(url, database)
         configCache.createUserGroup(group, userDN)
         tweaks = makeTweak(configModule.process).jsondictionary()
-        fileName = tempfile.mkstemp()
+        _, fileName = tempfile.mkstemp()
         try:
             filename = self.writeFile(configModule, fileName)
             configCache.addConfig(filename)
@@ -93,7 +93,7 @@ class ConfigCache(object):
         self.logger.debug("Writing CMSSW config to %s" % self.outputFile)
         outFile = open(filename, "wb")
         outFile.write("import FWCore.ParameterSet.Config as cms\n")
-        outFile.write(sourceModule.dumpPython())
+        outFile.write(sourceModule.process.dumpPython())
         outFile.close()
         
         return filename
