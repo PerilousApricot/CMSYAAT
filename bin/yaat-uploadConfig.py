@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.6
 
+import os
 import sys
 import pwd
 
@@ -14,20 +15,20 @@ parser.add_option("-g", "--group", dest="group",
                   help="Group to store as", default="CMSYAAT")
 parser.add_option("-f", "--filename", dest="filename",
                   help="Configuration to upload")
-parser.add_option("-h", "--hostname", dest="hostname",
+parser.add_option("-e", "--endpoint", dest="endpoint",
                   help="Target couch instance (formatted as http://andrewmelo.cloudant.com:5984)",
-                  default="http://se2.accre.vanderbilt.edu:5984")
+                  default="http://se2.accre.vanderbilt.edu:5985")
 parser.add_option("-d", "--database", dest="database",
                   help="Target database", default="wmagent_configcache")
 (options, args) = parser.parse_args()
 
 
 cacheFile = ConfigCache()
-config = cacheFile.loadConfig( options.filename )
+config = cacheFile.loadConfig( options.filename, arguments = args )
 target = cacheFile.upload(config, options.user, options.group,
-                    url=options.hostname,
+                    url=options.endpoint,
                     database=options.database,
-                    arguments=args,
+                    label = os.path.basename(options.filename),
                     )
 print target
 sys.exit( 0 )
