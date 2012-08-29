@@ -16,8 +16,14 @@ if [ ! -e $DIR/externals/WMClient ]; then
     cd $DIR/externals/WMClient
     git clone git://github.com/dmwm/deployment.git
     cd deployment
-    ./Deploy -t v01 $DIR/externals/WMClient wmclient@0.9.0
-    ./Deploy -s post -t v01 $DIR/externals/WMClient wmclient@0.9.0
+    ./Deploy -t v01 $DIR/externals/WMClient wmclient@0.9.10
+    if [ $? -ne 0 ]; then
+        echo "***Externals installation failed!***"
+        echo "There are additional logs at bootstrap-\$arch.log, somewhere"
+        echo "within this directory tree"
+        exit 1
+    fi
+    ./Deploy -s post -t v01 $DIR/externals/WMClient wmclient@0.9.10
     )
 else
     echo "WMClient appears to already be installed"
