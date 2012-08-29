@@ -29,8 +29,12 @@ class WorkflowGenerator(object):
         self.logger.debug("Status: %s" % status)
         self.logger.debug("Reason: %s" % reason)
         self.logger.debug("Data: %s" % data)
-        
     
+    def submitRequestToReqMgr(self, url, params):
+        workflow = self.makeRequest(url, params)    
+        self.approveRequest(url, workflow)
+        self.assignRequest(url, workflow, team="CMSYAATTeam")
+        
     def makeRequest(self, url, params):
         request = JSONRequests(url)
         headers  =  {"Content-type": "application/x-www-form-urlencoded",
@@ -97,31 +101,20 @@ class WorkflowGenerator(object):
                   "MinMergeSize": 1,
                   "MaxMergeSize": 1,
                   "MaxMergeEvents": 50000,
-                  "AcquisitionEra": era,
+                  #"AcquisitionEra": era,
                   "maxRSS": 4294967296,
                   "maxVSize": 4294967296,
-                  "dashboard": "Analysis",
+                  "dashboard": "CMSYAATAnalysis",
                   "checkbox"+workflow: "checked"}
     
-        encodedParams = urllib.urlencode(params, True)
-    
+        request = JSONRequests(url)
         headers  =  {"Content-type": "application/x-www-form-urlencoded",
-                     "Accept": "text/plain"}
-    
-        conn  =  httplib.HTTPConnection(url)
-        conn.request("POST",  "/reqmgr/assign/handleAssignmentPage", encodedParams, headers)
-        response = conn.getresponse()
-        if response.status != 200:
-            print 'could not assign request with following parameters:'
-            for item in params.keys():
-                print item + ": " + str(params[item])
-            print 'Response from http call:'
-            print 'Status:',response.status,'Reason:',response.reason
-            print 'Explanation:'
-            data = response.read()
-            print data
-            print "Exiting!"
-            sys.exit(1)
-        conn.close()
-        print 'Assigned workflow:',workflow,'to site:',site,'with processing version',procversion
-        return 
+                 "Accept": "text/plain"}
+        request.post("/reqmgr/assign/handleAssignmentPage", params, headers)
+        
+        (data, status, reason, _) = request.getresponse()
+        if status != 200:
+            self.debugHttpError(data, status, reason)            
+            raise RuntimeError, "POST failed with code %s" % status
+        self.logger.info("Assigned the workflow %s" % workflow)
+        
