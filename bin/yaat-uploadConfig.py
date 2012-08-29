@@ -5,7 +5,7 @@ import sys
 import pwd
 
 from optparse import OptionParser
-from CMSYAAT.FileCache.ConfigCache import ConfigCache
+from CMSYAAT.CMSSWConfigManager import CMSSWConfigManager
 
 # TODO: Get some common options parsing
 parser = OptionParser()
@@ -20,13 +20,16 @@ parser.add_option("-e", "--endpoint", dest="endpoint",
                   default="http://se2.accre.vanderbilt.edu:5985")
 parser.add_option("-d", "--database", dest="database",
                   help="Target database", default="wmagent_configcache")
+parser.add_option("-w", "--workdir", dest="workdir",
+                  help="CMSSW Installation to upload")
+
 (options, args) = parser.parse_args()
 
-
-cacheFile = ConfigCache()
-config = cacheFile.loadConfig( options.filename, arguments = args )
-target = cacheFile.upload(config, options.user, options.group,
-                    url=options.endpoint,
+factory = CMSSWConfigManager()
+cache   = factory.newConfig()
+config  = cache.loadConfigFromFile( config = options.filename )
+target  = cache.uploadToConfigCache(config, options.user, options.group,
+                    url=options.hostname,
                     database=options.database,
                     label = os.path.basename(options.filename),
                     )
