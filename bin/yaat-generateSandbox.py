@@ -7,7 +7,7 @@ from CMSYAAT.SandboxManager import SandboxManager
 parser = OptionParser()
 parser.add_option("-w", "--workdir", dest="workdir",
                   help="CMSSW Installation to upload")
-parser.add_option("-f", "--filename", dest="fileName",
+parser.add_option("-o", "--output", dest="fileName",
                   help="Target filename",
                   default=None)
 (options, args) = parser.parse_args()
