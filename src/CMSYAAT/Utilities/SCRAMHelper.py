@@ -6,6 +6,7 @@ Some helper functions for dealing with CMS' SCRAM tool
 import sys
 import os.path
 import subprocess
+import pprint
 
 # TODO: Make cmsset_default.sh configurable
 cmssetPaths = ['/uscmst1/prod/sw/cmsset_default.sh',
@@ -45,8 +46,9 @@ class SCRAMWorkDirectory:
         self.oldPath        = sys.path[:]
         self.oldModules     = sys.modules.copy()
         
-        sys.modules = {}
-
+        # FIXME: Do I need these modules?
+        #sys.modules.clear()
+        #sys.modules['__main__'] = self.oldModules['__main__']
         for envScript in cmssetPaths:
             if os.path.exists( envScript ):
 
@@ -63,17 +65,16 @@ class SCRAMWorkDirectory:
                     if len(line.split('=')) == 2:
                         k, v = line.split('=')
                         os.environ[k] = v
-                        
-                for path in os.environ['PYTHONPATH'].split(os.pathsep):
+
+                for path in reversed(os.environ['PYTHONPATH'].split(os.pathsep)):
                     # index zero is the name of the script
                     sys.path.insert(1, path)
-                    
+
                 # make sure we got the cms environment
                 for path in os.environ['PATH'].split(os.pathsep):
                     if os.path.exists(os.path.join(path, 'cmsRun')):
                         return
                 
-
                 # if we get here, we didn't get a valid CMS environment
                 raise RuntimeError, "Couldn't find cmsRun using %s" % envScript
                
@@ -84,7 +85,14 @@ class SCRAMWorkDirectory:
         os.environ.clear()
         os.environ.update(self.oldEnvironment)
         sys.path    = self.oldPath[:]
-        sys.modules = dict(self.oldModules)
+        # FIXME? Dragons are here, this blows up for some reason
+        #tempDict = sys.modules.copy()
+        #for module in tempDict:
+        #    if module in self.oldModules:
+        #        sys.modules[module] = self.oldModules[module]
+        #    else:
+        #        del sys.modules[module]
+        # sys.modules = dict(self.oldModules)
         
         
         

@@ -10,7 +10,7 @@ from CMSYAAT.CMSSWConfigManager import CMSSWConfigManager
 # TODO: Get some common options parsing
 parser = OptionParser()
 parser.add_option("-u", "--user", dest="user",
-                  help="Username to store as", default=pwd.getpwuid(os.getuid()))
+                  help="Username to store as", default=pwd.getpwuid(os.getuid()).pw_name)
 parser.add_option("-g", "--group", dest="group",
                   help="Group to store as", default="CMSYAAT")
 parser.add_option("-f", "--filename", dest="filename",
@@ -25,13 +25,16 @@ parser.add_option("-w", "--workdir", dest="workdir",
 
 (options, args) = parser.parse_args()
 
-factory = CMSSWConfigManager()
+factory = CMSSWConfigManager( couchHost = options.endpoint,
+                              couchDB   = options.database )
 cache   = factory.newConfig()
-config  = cache.loadConfigFromFile( config = options.filename )
-target  = cache.uploadToConfigCache(config, options.user, options.group,
-                    url=options.hostname,
-                    database=options.database,
-                    label = os.path.basename(options.filename),
-                    )
+
+cache.loadConfigFromFile( config    = options.filename,
+                          directory = options.workdir,
+                          args      = args )
+target  = cache.uploadToConfigCache(
+                        user      = options.user,
+                        group     = options.group,
+                        label     = os.path.basename(options.filename) )
 print target
 sys.exit( 0 )

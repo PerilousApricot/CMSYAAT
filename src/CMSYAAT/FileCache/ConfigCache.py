@@ -37,20 +37,21 @@ class ConfigCache(object):
         self.logger.info("Importing the config, this may take a while...")
         sys.stdout.flush()
         with SCRAMWorkDirectory( scramDir ):
-            cfgBaseName = os.path.basename(configPath).replace(".py", "")
-            cfgDirName = os.path.dirname(configPath)
-            modPath = imp.find_module(cfgBaseName, [cfgDirName])
-            originalArgv = sys.argv
+            cfgBaseName  = os.path.basename(configPath).replace(".py", "")
+            cfgDirName   = os.path.dirname(configPath)
+            originalArgv = sys.argv[:]
             try:
                 if arguments:
                     sys.argv = [configPath]
                     sys.argv.extend(arguments)
-                    
+                else:
+                    sys.argv = [configPath]
+
+                modPath      = imp.find_module(cfgBaseName, [cfgDirName])
                 loadedConfig = imp.load_module(cfgBaseName, modPath[0],
                                                modPath[1], modPath[2])
             finally:
-                if arguments:
-                    sys.argv = originalArgv
+                sys.argv = originalArgv[:]
               
         self.logger.info("done")
         

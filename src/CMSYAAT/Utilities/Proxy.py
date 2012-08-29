@@ -4,12 +4,17 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 14, 2012
 '''
 from WMCore.Credential.Proxy import Proxy as WMCoreProxy
 from functools import wraps
+import os
+import logging
+
 
 def requireProxy(f):
     @wraps(f)
     def wrapper(*args, **kwds):
         proxyHelper = Proxy()
         proxyHelper.initProxy()
+        os.environ['X509_USER_PROXY'] = proxyHelper.getProxyFilename()
+        return f(*args, **kwds)
     return wrapper
 
 class Proxy(object):
@@ -24,17 +29,17 @@ class Proxy(object):
         '''
         Constructor
         '''
-        pass
+        self.helper = WMCoreProxy({'logger' : logging})
+
+    def getProxyFilename(self):
+        return self.helper.getProxyFilename()
             
     def initProxy(self):
-        helper = WMCoreProxy()
-        helper.create()
+        self.helper.create()
         
     def deleteProxy(self):
-        helper = WMCoreProxy()
-        helper.destroy()
+        self.helper.destroy()
     
     def uploadToMyproxy(self, allowedDN):
-        helper = WMCoreProxy()
-        helper.serverDN = allowedDN
-        helper.delegate( None, True )
+        self.helper.serverDN = allowedDN
+        self.helper.delegate( None, True )
