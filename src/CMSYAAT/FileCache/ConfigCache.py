@@ -6,7 +6,6 @@ This should probably be merged back into WMCore
 """
 
 import imp
-import json
 import os
 import sys
 import logging
@@ -36,6 +35,13 @@ class ConfigCache(object):
         """
         self.logger.info("Importing the config, this may take a while...")
         sys.stdout.flush()
+        
+        print "configpath is %s" % configPath
+        # Hopefully this is a sensible default
+        if not scramDir:
+            scramDir = os.path.dirname(configPath)
+            print "scramdir is %s" % scramDir
+
         with SCRAMWorkDirectory( scramDir ):
             cfgBaseName  = os.path.basename(configPath).replace(".py", "")
             cfgDirName   = os.path.dirname(configPath)

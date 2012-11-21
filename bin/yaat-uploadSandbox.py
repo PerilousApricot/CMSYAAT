@@ -7,7 +7,7 @@ from CMSYAAT.FileCache.SandboxCache import SandboxCache
 parser = OptionParser()
 parser.add_option("-w", "--workdir", dest="workdir",
                   help="CMSSW Installation to upload")
-parser.add_option("-h", "--hostname", dest="hostname",
+parser.add_option("-e", "--endpoint", dest="endpoint",
                   help="Target endpoint",
                   default="https://cmsweb.cern.ch/crabcache")
 (options, args) = parser.parse_args()
