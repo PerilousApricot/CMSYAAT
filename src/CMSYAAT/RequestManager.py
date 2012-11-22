@@ -5,7 +5,7 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 9, 2012
 
 class RequestManager(object):
     '''
-    Interface to WMAgent's RequestManager
+    Client-Facing Interface to WMAgent's RequestManager
     '''
 
 
@@ -26,6 +26,7 @@ class RequestManager(object):
         
         Returns a new request object initialized with the new remote ID
         """
+        
         raise NotImplementedError
     
     def submitRequestForTesting(self, request, renameRequestForTesting = True):

@@ -6,7 +6,7 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 10, 2012
 class Request(object):
     '''
     Represents one request to WMAgent. Roughly, one MC gen request or
-    processing request (TBD: should there be two subclasses?)
+    processing request
     
     Can be set with parameters, submitted to RequestManager and then
     monitored using the built-in properties
@@ -18,9 +18,6 @@ class Request(object):
         '''
         Constructor
         '''
-        if type(self) == Request:
-            raise RuntimeError, "You must use a subclass of CMSYAAT.Request, "\
-                                  "not CMSYAAT.Request itself"
         pass
     
     def cancel(self):
@@ -53,8 +50,8 @@ class Request(object):
         """
         Sets the required CMSSW configuration.
         
-        Annoyingly, this is named different things for processing and MC-gen
         """
+        self.cmsswConfig = configuration
         raise NotImplementedError
     
     cmsswConfig = property(None, setCMSSWConfig)
