@@ -11,17 +11,15 @@ class CMSSWConfigManager(object):
     '''
 
 
-    def __init__(self, couchHost = "https://cmsweb.cern.ch/couchdb",
-                       couchDB   = "reqmgr_config_cache"):
-        self.couchHost = couchHost
-        self.couchDB   = couchDB
+    def __init__(self, endpoint = \
+                        "https://cmsweb.cern.ch/couchdb/reqmgr_config_cache"):
+        self.endpoint = endpoint
     
     def newConfig(self):
         """
         Returns a fresh CMSSWConfig object which can be customised and stored
         """
-        return CMSSWConfig( couchHost = self.couchHost,
-                            couchDB   = self.couchDB )
+        return CMSSWConfig( endpoint = self.endpoint )
     
     def getConfig(self, url):
         """
@@ -29,4 +27,4 @@ class CMSSWConfigManager(object):
         """
         config = CMSSWConfig()
         config.url = url
-        return config        
+        return config

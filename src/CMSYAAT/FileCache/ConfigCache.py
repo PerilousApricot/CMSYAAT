@@ -36,11 +36,11 @@ class ConfigCache(object):
         self.logger.info("Importing the config, this may take a while...")
         sys.stdout.flush()
         
-        print "configpath is %s" % configPath
+        self.logger.debug("configpath is %s" % configPath)
         # Hopefully this is a sensible default
         if not scramDir:
             scramDir = os.path.dirname(configPath)
-            print "scramdir is %s" % scramDir
+            self.logger.debug("scramdir is %s" % scramDir)
 
         with SCRAMWorkDirectory( scramDir ):
             cfgBaseName  = os.path.basename(configPath).replace(".py", "")

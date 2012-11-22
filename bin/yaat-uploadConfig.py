@@ -16,17 +16,15 @@ parser.add_option("-g", "--group", dest="group",
 parser.add_option("-f", "--filename", dest="filename",
                   help="Configuration to upload")
 parser.add_option("-e", "--endpoint", dest="endpoint",
-                  help="Target couch instance (formatted as http://andrewmelo.cloudant.com:5984)",
-                  default="http://se2.accre.vanderbilt.edu:5985")
-parser.add_option("-d", "--database", dest="database",
-                  help="Target database", default="wmagent_configcache")
+        help="Target couch instance (formatted as https://cmsweb.cern.ch/couchdb/reqmgr_config_cache)",
+        default="https://cmsweb.cern.ch/couchdb/reqmgr_config_cache")
 parser.add_option("-w", "--workdir", dest="workdir",
                   help="CMSSW Installation to upload")
 
 (options, args) = parser.parse_args()
 
-factory = CMSSWConfigManager( couchHost = options.endpoint,
-                              couchDB   = options.database )
+factory = CMSSWConfigManager( endpoint = options.endpoint )
+
 cache   = factory.newConfig()
 
 cache.loadConfigFromFile( config    = options.filename,
