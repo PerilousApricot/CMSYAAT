@@ -75,6 +75,24 @@ class ConfigCache(object):
         configCache = CMSConfigCache(url, database)
         configCache.createUserGroup(group, userDN)
         tweaks = makeTweak(configModule.process).jsondictionary()
+        requiredFields = (('dataTier','USER'),('filterName',''))
+        for currentModule in tweaks['process']['outputModules_']:
+            if not 'dataset' in tweaks['process'][currentModule]:
+                tweaks['process'][currentModule]['dataset'] = {
+                                                   "parameters_": [
+                                                       "dataTier",
+                                                       "filterName"
+                                                   ],
+                                                   "filterName": "",
+                                                   "dataTier": "USER"
+                                               }
+                continue
+
+            for reqKey, defaultValue in (('dataTier','USER'),('filterName','')):
+                if not reqKey in tweaks['process'][currentModule]['dataset']['parameters_']:
+                    tweaks['process'][currentModule]['dataset']['parameters_'].append(reqKey)
+                    tweaks['process'][currentModule]['dataset'][reqKey] = defaultValue
+
         _, fileName = tempfile.mkstemp()
         try:
             filename = self.writeFile(configModule, fileName)
