@@ -36,6 +36,12 @@ class Request(object):
     def getWorkflowName(self):
         return self.workflowName
 
+    def getReqmgrUrl(self):
+        return self.reqmgrUrl
+
+    def setReqmgrUrl(self, url):
+        self.reqmgrUrl = url
+
     def cancel(self):
         """
         Cancels the request. This doesn't actually slay all the jobs, and has

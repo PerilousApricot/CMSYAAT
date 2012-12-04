@@ -20,9 +20,19 @@ class RequestManager(object):
     
     def listRequests(self):
         """
-        Returns a list of requests owned by the user
+        Returns a list of requests in the reqmgr
+
+        TODO add generator form
         """
-        raise NotImplementedError
+        reqmgr = RequestManagerImpl()
+        retval = []
+        for request in reqmgr.listRequests(self.endpoint):
+            tmpRequest = Request()
+            tmpRequest.setReqmgrUrl( self.endpoint )
+            tmpRequest.setWorkflowName( request['request_name'] )
+            retval.append( tmpRequest )
+        return retval
+
     
     def submitRequest(self, request):
         """
@@ -32,7 +42,8 @@ class RequestManager(object):
         """
         reqmgr = RequestManagerImpl()
         workflow = reqmgr.makeRequest( self.endpoint, request.getRequestDict() )
-        reqmgr.assignRequest( self.endpoint, request.getTargetTeam(), workflow )
+        reqmgr.approveRequest( self.endpoint, workflow )
+        reqmgr.assignRequest( self.endpoint, workflow, request.getTargetTeam() )
         request.setWorkflowName( workflow )
         return request
 
