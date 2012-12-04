@@ -18,8 +18,24 @@ class Request(object):
         '''
         Constructor
         '''
-        pass
+        self.targetTeam = "TestingTeam"
     
+    # some temporary functions
+    def getTargetTeam(self):
+        return self.targetTeam
+
+    def setRequestDict(self, val):
+        self.requestDict = val
+
+    def getRequestDict(self):
+        return self.requestDict
+
+    def setWorkflowName(self, name):
+        self.workflowName = name
+
+    def getWorkflowName(self):
+        return self.workflowName
+
     def cancel(self):
         """
         Cancels the request. This doesn't actually slay all the jobs, and has

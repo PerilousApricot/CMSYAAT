@@ -3,16 +3,20 @@ Created by Andrew Melo <andrew.melo@gmail.com> on Aug 9, 2012
 
 '''
 
+from CMSYAAT.Request import Request
+# WARNING: Stick of redundancy stick
+from CMSYAAT.RequestManagerImpl.RequestManagerImpl import RequestManagerImpl
 class RequestManager(object):
     '''
     Client-Facing Interface to WMAgent's RequestManager
     '''
 
 
-    def __init__(self):
+    def __init__(self, endpoint = "http://cmsweb.cern.ch/reqmgr"):
         '''
         Constructor
         '''
+        self.endpoint = endpoint
     
     def listRequests(self):
         """
@@ -26,9 +30,12 @@ class RequestManager(object):
         
         Returns a new request object initialized with the new remote ID
         """
-        
-        raise NotImplementedError
-    
+        reqmgr = RequestManagerImpl()
+        workflow = reqmgr.makeRequest( self.endpoint, request.getRequestDict() )
+        reqmgr.assignRequest( self.endpoint, request.getTargetTeam(), workflow )
+        request.setWorkflowName( workflow )
+        return request
+
     def submitRequestForTesting(self, request, renameRequestForTesting = True):
         """
         Submits a request to reqmgr for testing. This means fudgeing the job
@@ -43,6 +50,13 @@ class RequestManager(object):
         CMSYAAT-TEST to the beginning of the request string
         """
         raise NotImplementedError
+
+    def newRequest(self):
+        """
+        Factory function to make a new blank request, initialized to point to
+        this request manager
+        """
+        return Request( )
     
     def newMCRequest(self, request):
         """
