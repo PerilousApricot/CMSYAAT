@@ -68,11 +68,11 @@ class RequestManagerImpl:
                                '/reqMgr/request', params )
 
         self.checkStatusOrComplain( 200, retval, status, reason )
-        return retval['RequestName']
+        return retval
 
     def approveRequest(self,url,workflow):
         request = Requests( url )
-        params = {"requestName": workflow,
+        params = {"requestName": workflow['RequestName'],
                   "status": "assignment-approved"}
         retval,status,reason,_ = \
                     self.wrapCall( request, 'PUT',
@@ -82,11 +82,14 @@ class RequestManagerImpl:
     def assignRequest(self,url,workflow,team):
         # lame
         # https://github.com/dmwm/WMCore/blob/master/src/python/WMCore/HTTPFrontEnd/RequestManager/Assign.py#L177
-        params = { 'requestName' : workflow,
+        params = workflow
+        params.update( { 'requestName' : workflow['RequestName'],
                    'action' : 'Approve',
                    'Team' + team : 'checked',
-                   'checkbox' + workflow : 'checked'}
-    
+                   'checkbox' + workflow['RequestName'] : 'checked',
+                   'AcquisitionEra' : 'v1',
+                   'ProcessingVersion' : 'v1'})
+        params['WorkloadSpec'] = None
         request = Requests( url )
         retval, status, reason, _ = \
                 self.wrapCall( request, 'POST',

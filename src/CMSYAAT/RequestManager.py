@@ -42,9 +42,10 @@ class RequestManager(object):
         """
         reqmgr = RequestManagerImpl()
         workflow = reqmgr.makeRequest( self.endpoint, request.getRequestDict() )
+        workflowName = workflow['RequestName']
         reqmgr.approveRequest( self.endpoint, workflow )
         reqmgr.assignRequest( self.endpoint, workflow, request.getTargetTeam() )
-        request.setWorkflowName( workflow )
+        request.setWorkflowName( workflowName )
         return request
 
     def submitRequestForTesting(self, request, renameRequestForTesting = True):
