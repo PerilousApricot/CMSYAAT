@@ -1,0 +1,15 @@
+        // get running start time.
+        var requestStatus = this._get(aData, "request_status");
+        var lastStatus = requestStatus[requestStatus.length - 1];
+
+        //request is done
+        if (lastStatus.status !== 'running') return 0;
+
+        var totalJobs = reqSummary.getWMBSTotalJobs() - reqSummary.getJobStatus("canceled");
+        // jobCompletion percentage 
+        var completionRatio = (completedJobs / totalJobs);
+        var queueInjectionRatio = reqSummary.getJobStatus("inWMBS") / this._get(aData, 'total_jobs', 1);
+        var duration = Math.round(Date.now() / 1000) - lastStatus.update_time;
+        var timeLeft = Math.round((duration / (completionRatio * queueInjectionRatio)) - duration);
+
+        return timeLeft;

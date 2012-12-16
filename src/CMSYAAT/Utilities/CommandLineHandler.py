@@ -12,6 +12,10 @@ def getParser(commonArgs = []):
             parser.add_option("-e", "--endpoint", dest="endpoint",
                   help="Target request manager",
                   default="http://cmsweb.cern.ch/reqmgr")
+        elif arg == 'wmstat':
+            parser.add_option("-w", "--wmstat", dest="wmstat",
+                  help="WMStats location",
+                  default="http://cmsweb.cern.ch/couchdb/wmstat")
     
     return parser
 

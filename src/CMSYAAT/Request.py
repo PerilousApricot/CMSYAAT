@@ -2,7 +2,9 @@
 Created by Andrew Melo <andrew.melo@gmail.com> on Aug 10, 2012
 
 '''
-
+import time
+import math
+from CMSYAAT.RequestManagerImpl.RequestManagerImpl import RequestManagerImpl
 class Request(object):
     '''
     Represents one request to WMAgent. Roughly, one MC gen request or
@@ -19,7 +21,8 @@ class Request(object):
         Constructor
         '''
         self.targetTeam = "TestingTeam"
-    
+        self.cacheTime = 10
+
     # some temporary functions
     def getTargetTeam(self):
         return self.targetTeam
@@ -41,6 +44,90 @@ class Request(object):
 
     def setReqmgrUrl(self, url):
         self.reqmgrUrl = url
+
+    def setWMStatUrl(self, url):
+        self.wmstatUrl = url
+
+    def getWMStatUrl(self):
+        return self.wmstatUrl
+
+    # TODO: metaprogramming
+    def getWorkloadSummaryDocuments(self):
+        if hasattr(self, '_workloadSummary') and \
+                self._workloadSummary[1] + self.cacheTime > time.time():
+            return self._workloadSummary[0][self.workflowName]
+        else:
+            reqmgr = RequestManagerImpl()
+            summary = reqmgr.getRequestInfo(self.wmstatUrl,
+                                                [self.workflowName])
+            self._workloadSummary = [ summary, time.time() ]
+            return self._workloadSummary[0][self.workflowName]
+
+    def getJobSummaryDocuments(self):
+        if hasattr(self, '_jobSummary') and \
+                self._jobSummary[1] + self.cacheTime > time.time():
+            return self._jobSummary[0][self.workflowName]
+        else:
+            reqmgr = RequestManagerImpl()
+            summary = reqmgr.getJobSummary(self.wmstatUrl,
+                                                [self.workflowName])
+            self._jobSummary = [ summary, time.time() ]
+            return self._jobSummary[0][self.workflowName]
+
+    def getJobCountSummaryPerSite(self):
+        summary = self.getWorkloadSummaryDocuments()
+        retval = {}
+        for key in summary:
+            if not key.startswith('agent-'):
+                continue
+            for site in summary[key]['sites']:
+                if not site in retval:
+                    retval[site] = self.getJobCountSummary(site)
+                else:
+                    oneupdate = self.getJobCountSummary(site)
+                    for k,v in oneupdate.iteritems():
+                        retval[site][k] += v
+        return retval
+
+    def getJobCountSummary(self, site=None):
+        summary = self.getWorkloadSummaryDocuments()
+        total = int(math.floor(float(summary['request']['total_jobs'])))
+        failed, submitted, resubmitted, running, cooloff, success = \
+                (0,0,0,0,0,0)
+        for key in summary:
+            if not key.startswith('agent-'):
+                continue
+            if site:
+                if not site in summary[key]['sites']:
+                    continue
+                status=summary[key]['sites'][site]
+            else:
+                status = summary[key]['status']
+            if 'submitted' in status:
+                submitted += status['submitted'].get('first',0)
+                running   += status['submitted'].get('running',0)
+                resubmitted += status['submitted'].get('queued', 0)
+            if 'failure' in status:
+                #logging.debug([val for val in \
+                #                 status['failure'].values()])
+                failed += sum([val for val in \
+                                status['failure'].values()])
+            success += status.get('success',0)
+            if 'cooloff' in status:
+                cooloff += sum([val for val in \
+                                status['cooloff'].values()])
+
+        return { 'failed' : failed, 'submitted' : submitted, 
+                'resubmitted' : resubmitted, 'running' : running,
+                'total' : total, 'cooloff': cooloff, 'success':success }
+
+    def getJobResultsSummary(self):
+        summary = self.getJobSummaryDocuments()
+        sortByCount = sorted(summary['rows'], key=lambda x: -1 *x['value'])
+        
+        return {'bycount':sortByCount}
+        # ["meloam_ASYNCTEST1_121215_092921_1181", "submitfailed", 61202, "T2_US_Vanderbilt", ["CondorError"]]
+        
 
     def cancel(self):
         """
@@ -87,9 +174,9 @@ class Request(object):
     # returns a dict of
     #     jobStatus[task][state][ids]
     # to track the state of different jobs in the request
-    def getJobStatus(self):
-        raise NotImplementedError
-    jobStatus = property(getJobStatus)
+    #def getJobStatus(self):
+    #    raise NotImplementedError
+    #jobStatus = property(getJobStatus)
     
     # returns information about Active/Acquired/Complete WorkQueueElements
     # WQEs are the next largest division of a request above jobs. Basically,

@@ -2,7 +2,7 @@
 Created by Andrew Melo <andrew.melo@gmail.com> on Aug 9, 2012
 
 '''
-
+import pprint
 from CMSYAAT.Request import Request
 # WARNING: Stick of redundancy stick
 from CMSYAAT.RequestManagerImpl.RequestManagerImpl import RequestManagerImpl
@@ -12,11 +12,13 @@ class RequestManager(object):
     '''
 
 
-    def __init__(self, endpoint = "http://cmsweb.cern.ch/reqmgr"):
+    def __init__(self, endpoint = "http://cmsweb.cern.ch/reqmgr",
+                       wmstat = "http:/cmsweb.cern.ch/couchdb/wmstats"):
         '''
         Constructor
         '''
         self.endpoint = endpoint
+        self.wmstat   = wmstat
     
     def listRequests(self):
         """
@@ -33,7 +35,6 @@ class RequestManager(object):
             retval.append( tmpRequest )
         return retval
 
-    
     def submitRequest(self, request):
         """
         Given a request object, submit it to the reqmgr
@@ -47,6 +48,17 @@ class RequestManager(object):
         reqmgr.assignRequest( self.endpoint, workflow, request.getTargetTeam() )
         request.setWorkflowName( workflowName )
         return request
+
+    def getRequest(self, requestName):
+        """
+        Returns a request object, raises if it doesn't exist
+        """
+        reqmgr = RequestManagerImpl()
+        tmpRequest = Request()
+        tmpRequest.setReqmgrUrl( self.endpoint )
+        tmpRequest.setWMStatUrl( self.wmstat )
+        tmpRequest.setWorkflowName( requestName )
+        return tmpRequest
 
     def submitRequestForTesting(self, request, renameRequestForTesting = True):
         """

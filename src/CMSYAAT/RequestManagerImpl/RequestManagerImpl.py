@@ -6,6 +6,7 @@ import json
 import httplib
 import urllib
 import datetime
+import pprint
 from httplib import HTTPException
 from CMSYAAT.Utilities.Proxy import requireProxy
 from CMSYAAT.Utilities import Logging
@@ -18,8 +19,8 @@ class RequestManagerImpl:
     Not a public interface, this is gross for now
     """
     def __init__(self):
-        self.headers = {'User-agent':                                        
-                            "CMSYAAT 1.0 github.com/PerilousApricot/CMSYAAT"}
+        self.headers = {'User-agent':
+                        "CMSYAAT 1.0 github.com/PerilousApricot/CMSYAAT"}
         pass
 
     def checkStatusOrComplain( self, wantedStatus, retval, status, reason ):
@@ -53,6 +54,58 @@ class RequestManagerImpl:
         logging.debug("Request status was %s" % status)
         logging.debug("Request returned %s" % retval)
         return retval, status, reason, cached
+
+    def getJobSummary(self,url,requestNames):
+        request = JSONRequests( url )
+        retval = {}
+        # get the ID(s) of the latest status doc(s)
+        for oneReq in requestNames:
+            startkey = urllib.quote_plus('["%s"]' % oneReq)
+            endkey   = urllib.quote_plus('["%s",{}]' % oneReq)
+            jobstatus, status, reason, _ = \
+                self.wrapCall( request, 'GET',
+                                '/_design/WMStats/_view/jobsByStatusWorkflow?reduce=true&group=true&startkey=%s&endkey=%s' % ( startkey, endkey ) )
+            self.checkStatusOrComplain( 200, jobstatus, status, reason )
+            retval[oneReq] = jobstatus
+        return retval
+
+    def getRequestInfo(self,url,requestNames):
+        request = JSONRequests( url )
+        
+        # get the static docs
+        alldocs = requestNames[:]
+        # get the ID(s) of the latest status doc(s)
+        for oneReq in requestNames:
+            startkey = urllib.quote_plus('["%s",{}]' % oneReq)
+            endkey   = urllib.quote_plus('["%s"]' % oneReq)
+            statusids, status, reason, _ = \
+                self.wrapCall( request, 'GET',
+                                '/_design/WMStats/_view/latestRequest?descending=true&reduce=true&group=true&startkey=%s&endkey=%s' % ( startkey, endkey ) )
+            self.checkStatusOrComplain( 200, statusids, status, reason ) 
+            for row in statusids['rows']:
+                alldocs.append(row['value']['id'])
+
+        # get the updated docs
+        reqinfo, status, reason, _ = \
+                self.wrapCall( request, 'POST',
+                                '/_all_docs?include_docs=true',
+                                {'keys':alldocs} )
+        self.checkStatusOrComplain( 200, reqinfo, status, reason )
+
+        retval = {}
+        for onereq in requestNames:
+            retval[onereq] = {}
+            for onedoc in reqinfo['rows']:
+                if not onereq == onedoc['doc']['workflow']:
+                    continue
+                if onedoc['doc']['type'] == 'reqmgr_request':
+                    retval[onereq]['request'] = onedoc['doc']
+                elif onedoc['doc']['type'] == 'agent_request':
+                    retval[onereq]['agent-'+onedoc['doc']['agent_url']] = \
+                            onedoc['doc']
+                else:
+                    raise RuntimeError, "Got an unknown document type!"
+        return retval
 
     def listRequests(self, url):
         request = JSONRequests( url )
